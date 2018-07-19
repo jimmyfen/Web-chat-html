@@ -43,7 +43,7 @@ Socket.prototype = {
 
         // 收到用户发送消息
         if (['MESSAGE', 'IMOJI', 'IMAGE'].indexOf(data.command) > -1) {
-            this.vue.messageList.push({position: 'left', fd: data.fd, content: data.content});
+            this.vue.messageList.push({position: 'left', name: this.vue.list[data.fd].name, content: data.content});
         }
 
         // 用户修改昵称
