@@ -25,6 +25,7 @@ Socket.prototype = {
             sessionStorage.setItem('name', data.content.name);
             sessionStorage.setItem('fd', data.content.fd);
             this.vue.messageList.push({position: 'middle', content: '你 加入了群聊'});
+            this.vue.scrollToBottom();
         }
 
         // 新加入的用户
@@ -32,6 +33,7 @@ Socket.prototype = {
             this.vue.$set(this.vue.list, data.content.fd, {name: data.content.name});
             this.vue.total = Object.keys(this.vue.list).length;
             this.vue.messageList.push({postion: 'middle', content: data.content.name + ' 加入了群聊'});
+            this.vue.scrollToBottom();
         }
 
         // 用户退出
@@ -39,17 +41,20 @@ Socket.prototype = {
             this.vue.$delete(this.vue.list, data.content.fd);
             this.vue.total = Object.keys(this.vue.list).length;
             this.vue.messageList.push({position: 'middle', content: data.content.name + ' 退出了群聊'});
+            this.vue.scrollToBottom();
         }
 
         // 收到用户发送消息
         if (['MESSAGE', 'IMOJI', 'IMAGE'].indexOf(data.command) > -1) {
             this.vue.messageList.push({position: 'left', name: this.vue.list[data.fd].name, content: data.content});
+            this.vue.scrollToBottom();
         }
 
         // 用户修改昵称
         if (data.command === 'CHANGE_NAME') {
             this.vue.messageList.push({position: 'middle', content: data.content.originName + ' 将昵称改为 ' + data.content.name});
             this.vue.$set(this.vue.list, data.content.fd, {name: data.content.name});
+            this.vue.scrollToBottom();
         }
     }
 }

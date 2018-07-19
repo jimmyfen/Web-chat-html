@@ -161,6 +161,7 @@ export default {
             this.socket.ws.send(JSON.stringify({command: 'IMOJI', content: e.target.getAttribute('data-index')}));
             this.showEmoji = false;
             this.messageList.push({position: 'right', name: name, content: '<img src="' + e.target.src + '" />'});
+            this.scrollToBottom();
         },
         sendImage: function(e){
             let input = e.target, file = input.files[0], fileReader = new FileReader(), name = sessionStorage.getItem('name');
@@ -170,6 +171,7 @@ export default {
                 this.socket.ws.send(JSON.stringify(message));
                 input.value = '';
                 this.messageList.push({position: 'right', name: name, content: message.content});
+                this.scrollToBottom();
             }.bind(this);
         },
         sendMessage: function(e){
@@ -177,6 +179,7 @@ export default {
             this.socket.ws.send(JSON.stringify({command: 'MESSAGE', content: this.content}));
             this.messageList.push({position: 'right', name: name, content: this.content});
             this.content = '';
+            this.scrollToBottom();
         },
         sendName: function(e){
             let fd = sessionStorage.getItem('fd');
@@ -184,6 +187,7 @@ export default {
             this.messageList.push({position: 'middle', content: '你 将昵称改为 ' + this.name});
             this.$set(this.list, fd, {name: this.name});
             sessionStorage.setItem('name', this.name);
+            this.scrollToBottom();
         },
         blur: function(e){
             e.target.blur();
@@ -196,6 +200,10 @@ export default {
                 this.imageSrc = e.target.src;
                 this.showImage = !this.showImage;
             }
+        },
+        scrollToBottom: function(){
+            let dom = document.querySelector('.chat-box');
+            dom.scrollTo(0, dom.scrollHeight);
         }
     },
     mounted() {
@@ -269,7 +277,7 @@ export default {
     .line {height: 28px; line-height: 28px; font-size: 14px; text-align: center; border-bottom: 1px solid #fff;}
     .scroll {overflow: auto;}
 
-    .el-main {padding: 0; height: 95vh;}
+    .el-main {padding: 0 !important; height: 95vh;}
 
     .chat-box {height: 80vh;}
     .toolbar {height: 5vh; background-color: #fff;}
@@ -281,7 +289,7 @@ export default {
     .toolbar .icon .img-list {width: 170px; height: 150px; position: absolute; left: 5px; bottom: 35px; z-index: 100; background: #fff; border: 1px solid #dcdfe6;}
     .el-button {position: absolute; bottom: 0; right: 0;}
 
-    .el-textarea__inner {height: 5vh !important; overflow: auto; border: none; resize: none;}
+    .el-textarea__inner {height: 5vh !important; overflow: auto; border: none !important; resize: none;}
 
     .chat-item {max-width: 60vw; margin: 10px; float: left;}
     .chat-item.right {float: right;}
