@@ -19,8 +19,9 @@ Socket.prototype = {
         let data = JSON.parse(e.data);
         // 第一次进入或刷新页面 初始化
         if (data.command === 'INIT') {
-            this.vue.list = data.content.fds;
-            this.vue.total = Object.keys(data.content.fds).length;
+            this.vue.fd = data.content.fds;
+            this.vue.list = data.content.list;
+            this.vue.total = this.vue.fd.length;
             this.vue.name = data.content.name;
             sessionStorage.setItem('name', data.content.name);
             sessionStorage.setItem('fd', data.content.fd);
@@ -30,16 +31,21 @@ Socket.prototype = {
 
         // 新加入的用户
         if (data.command === 'ADD_USER') {
-            this.vue.$set(this.vue.list, data.content.fd, {name: data.content.name});
-            this.vue.total = Object.keys(this.vue.list).length;
+            this.vue.fd.push(data.content.fd);
+            this.vue.list.push({name: data.content.name});
+            this.vue.total = this.vue.fd.length;
             this.vue.messageList.push({postion: 'middle', content: data.content.name + ' 加入了群聊'});
             this.vue.scrollToBottom();
         }
 
         // 用户退出
         if (data.command === 'DELETE_USER') {
-            this.vue.$delete(this.vue.list, data.content.fd);
-            this.vue.total = Object.keys(this.vue.list).length;
+            let index = this.vue.fd.indexOf(data.content.fd);
+            if (index > -1) {
+                this.vue.fd.splice(index, 1);
+                this.vue.list.splice(index, 1);
+            }
+            this.vue.total = this.vue.fd.length;
             this.vue.messageList.push({position: 'middle', content: data.content.name + ' 退出了群聊'});
             this.vue.scrollToBottom();
         }
@@ -52,8 +58,10 @@ Socket.prototype = {
 
         // 用户修改昵称
         if (data.command === 'CHANGE_NAME') {
+            let index = this.vue.fd.indexOf(data.content.fd);
+            this.vue.list[index].name = data.content.name;
             this.vue.messageList.push({position: 'middle', content: data.content.originName + ' 将昵称改为 ' + data.content.name});
-            this.vue.$set(this.vue.list, data.content.fd, {name: data.content.name});
+            // this.vue.$set(this.vue.list, data.content.fd, {name: data.content.name});
             this.vue.scrollToBottom();
         }
     }

@@ -16,7 +16,7 @@
                     </div>
                     <div class="line bg-head">在线人数：{{total}}</div>
                     <div class="scroll" style="max-height: 500px;">
-                        <div class="line bg-body" v-for="(item, index) in list" :data-fd="index">{{item.name}}</div>
+                        <div class="line bg-body" v-for="item in list">{{item.name}}</div>
                     </div>
                 </el-aside>
                 <el-container>
@@ -49,7 +49,7 @@
                             </div>
                             <div class="clear"></div>
                         </div>
-                        <el-input type="textarea" v-model="content" placeholder="请输入内容" :autosize="true" @keyup.native.13="sendMessage">
+                        <el-input type="textarea" v-model="content" placeholder="请输入内容" :autosize="true" @keydown.native.13.prevent @keyup.native.13.prevent="sendMessage">
                         </el-input>
                         <div style="position: relative; border: 1px solid #dcdfe6; height: 28px; border-top: none;">
                             <el-button type="primary" size="mini" @click.stop="sendMessage">发送</el-button>
@@ -70,7 +70,7 @@
                     </el-input>
                     <div class="line bg-head">在线人数：{{total}}</div>
                     <div class="scroll" style="max-height: 30vh;">
-                        <div class="line bg-body" v-for="(item, index) in list" :data-fd="index">{{item.name}}</div>
+                        <div class="line bg-body" v-for="item in list">{{item.name}}</div>
                     </div>
                 </div>
                 <el-main>
@@ -101,7 +101,7 @@
                         </div>
                         <div class="clear"></div>
                     </div>
-                    <el-input type="textarea" v-model="content" placeholder="请输入内容" :autosize="true" @keyup.native.13="sendMessage">
+                    <el-input type="textarea" v-model="content" placeholder="请输入内容" :autosize="true" @keydown.native.13.prevent @keyup.native.13.prevent="sendMessage">
                     </el-input>
                     <div style="position: relative; height: 5vh; background-color: #fff;">
                         <el-button type="primary" size="mini" @click.stop="sendMessage">发送</el-button>
@@ -121,7 +121,8 @@ export default {
         
         return {
             name: '',
-            list: {},
+            fd: [],
+            list: [],
             messageList: [],
             total: 0,
             content: '',
@@ -175,17 +176,20 @@ export default {
             }.bind(this);
         },
         sendMessage: function(e){
-            let name = sessionStorage.getItem('name');
-            this.socket.ws.send(JSON.stringify({command: 'MESSAGE', content: this.content}));
-            this.messageList.push({position: 'right', name: name, content: this.content});
-            this.content = '';
-            this.scrollToBottom();
+            e.preventDefault();
+            if (this.content !== '') {
+                let name = sessionStorage.getItem('name');
+                this.socket.ws.send(JSON.stringify({command: 'MESSAGE', content: this.content}));
+                this.messageList.push({position: 'right', name: name, content: this.content});
+                this.content = '';
+                this.scrollToBottom();
+            }
         },
         sendName: function(e){
-            let fd = sessionStorage.getItem('fd');
+            let fd = parseInt(sessionStorage.getItem('fd')), index = this.fd.indexOf(fd);
             this.socket.ws.send(JSON.stringify({command: 'CHANGE_NAME', content: this.name}));
             this.messageList.push({position: 'middle', content: '你 将昵称改为 ' + this.name});
-            this.$set(this.list, fd, {name: this.name});
+            this.list[index].name = this.name;
             sessionStorage.setItem('name', this.name);
             this.scrollToBottom();
         },
@@ -202,8 +206,10 @@ export default {
             }
         },
         scrollToBottom: function(){
-            let dom = document.querySelector('.chat-box');
-            dom.scrollTo(0, dom.scrollHeight);
+            setTimeout(function(){
+                let dom = document.querySelector('.chat-box');
+                dom.scrollTo(0, dom.scrollHeight);
+            }, 500);
         }
     },
     mounted() {
