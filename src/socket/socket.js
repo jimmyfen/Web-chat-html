@@ -1,6 +1,6 @@
 function Socket(vue){
     this.vue = vue;
-    let name = sessionStorage.getItem('name'), url = 'ws://chat.fzhang.cn:9501';
+    let name = sessionStorage.getItem('name'), url = 'wss://chat.fzhang.cn/ws';
     url = name ? (url + '?name=' + name) : url;
     this.ws = new WebSocket(url);
     this.ws.onopen = this.open;
