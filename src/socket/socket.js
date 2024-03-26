@@ -42,17 +42,17 @@ Socket.prototype = {
         if (data.command === 'DELETE_USER') {
             let index = this.vue.fd.indexOf(data.content.fd);
             if (index > -1) {
-                this.vue.fd.splice(index, 1);
-                this.vue.list.splice(index, 1);
+              this.vue.fd.splice(index, 1);
+              this.vue.list.splice(index, 1);
+              this.vue.total = this.vue.fd.length;
+              this.vue.messageList.push({position: 'middle', content: data.content.name + ' 退出了群聊'});
+              this.vue.scrollToBottom();
             }
-            this.vue.total = this.vue.fd.length;
-            this.vue.messageList.push({position: 'middle', content: data.content.name + ' 退出了群聊'});
-            this.vue.scrollToBottom();
         }
 
         // 收到用户发送消息
         if (['MESSAGE', 'IMOJI', 'IMAGE'].indexOf(data.command) > -1) {
-            this.vue.messageList.push({position: 'left', name: this.vue.list[data.fd].name, content: data.content});
+            this.vue.messageList.push({position: 'left', name: this.vue.list[this.vue.fd.indexOf(data.fd)].name, content: data.content});
             this.vue.scrollToBottom();
         }
 
